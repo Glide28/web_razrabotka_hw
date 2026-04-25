@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.db
+.env
+wr_hw_02_ArseniyPaniklov*
+*.mp4
+*.mov
+*.avi

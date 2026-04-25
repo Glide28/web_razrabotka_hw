@@ -1,0 +1,432 @@
+{
+  "info": {
+    "name": "Order Service API",
+    "_postman_id": "8d6b3a10-3e22-4c0b-9c77-order-service",
+    "description": "Коллекция Postman для микросервиса заказов интернет-магазина завода лампочек.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User API",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart?sessionId=sess_abc123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ],
+              "query": [
+                {
+                  "key": "sessionId",
+                  "value": "sess_abc123"
+                }
+              ]
+            },
+            "description": "Получить текущее содержимое корзины по sessionId."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"sessionId\": \"sess_abc123\",\n  \"items\": [\n    {\n      \"id\": 1,\n      \"productId\": 1,\n      \"productName\": \"Светодиодная лампа A60 12W E27\",\n      \"price\": 199.99,\n      \"quantity\": 2,\n      \"lineTotal\": 399.98\n    },\n    {\n      \"id\": 2,\n      \"productId\": 2,\n      \"productName\": \"Светодиодная лампа C37 8W E14\",\n      \"price\": 149.99,\n      \"quantity\": 1,\n      \"lineTotal\": 149.99\n    }\n  ],\n  \"totalAmount\": 549.97\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add Item To Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"sess_abc123\",\n  \"productId\": 1,\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "items"
+              ]
+            },
+            "description": "Добавить товар в корзину."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Товар добавлен в корзину\",\n  \"cartItemId\": 1\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Некорректные данные корзины\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "items",
+                "1"
+              ]
+            },
+            "description": "Изменить количество товара в корзине."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "PUT"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Количество товара обновлено\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "PUT"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Позиция корзины не найдена\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "items",
+                "1"
+              ]
+            },
+            "description": "Удалить товар из корзины."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "DELETE"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Товар удален из корзины\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"sess_abc123\",\n  \"customer\": {\n    \"fullName\": \"Иванов Иван Иванович\",\n    \"phone\": \"+7 999 123-45-67\",\n    \"email\": \"ivanov@example.com\",\n    \"address\": \"г. Москва, ул. Пример, д. 1\",\n    \"comment\": \"Доставка после 18:00\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            },
+            "description": "Оформить заказ на основе текущей корзины."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"orderNumber\": \"ORD-2026-000010\",\n  \"status\": \"NEW\",\n  \"message\": \"Заказ успешно создан\"\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Корзина пуста или данные клиента некорректны\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "10"
+              ]
+            },
+            "description": "Получить информацию о заказе."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"orderNumber\": \"ORD-2026-000010\",\n  \"status\": \"NEW\",\n  \"totalAmount\": 599.97,\n  \"customer\": {\n    \"fullName\": \"Иванов Иван Иванович\",\n    \"phone\": \"+7 999 123-45-67\",\n    \"email\": \"ivanov@example.com\",\n    \"address\": \"г. Москва, ул. Пример, д. 1\"\n  },\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"productName\": \"Светодиодная лампа A60 12W E27\",\n      \"price\": 199.99,\n      \"quantity\": 3,\n      \"lineTotal\": 599.97\n    }\n  ]\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Заказ не найден\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin API",
+      "item": [
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders?page=1&size=20&status=NEW",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "NEW"
+                }
+              ]
+            },
+            "description": "Получить список заказов для административной панели."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"page\": 1,\n  \"size\": 20,\n  \"total\": 2,\n  \"items\": [\n    {\n      \"id\": 10,\n      \"orderNumber\": \"ORD-2026-000010\",\n      \"customerName\": \"Иванов Иван Иванович\",\n      \"status\": \"NEW\",\n      \"totalAmount\": 599.97,\n      \"createdAt\": \"2026-04-12T10:00:00\"\n    },\n    {\n      \"id\": 11,\n      \"orderNumber\": \"ORD-2026-000011\",\n      \"customerName\": \"Петров Петр Петрович\",\n      \"status\": \"CONFIRMED\",\n      \"totalAmount\": 349.98,\n      \"createdAt\": \"2026-04-12T11:00:00\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Order Details For Admin",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders/10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "orders",
+                "10"
+              ]
+            },
+            "description": "Получить детали заказа для административной панели."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 10,\n  \"orderNumber\": \"ORD-2026-000010\",\n  \"status\": \"NEW\",\n  \"totalAmount\": 599.97,\n  \"customer\": {\n    \"fullName\": \"Иванов Иван Иванович\",\n    \"phone\": \"+7 999 123-45-67\",\n    \"email\": \"ivanov@example.com\",\n    \"address\": \"г. Москва, ул. Пример, д. 1\"\n  },\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"productName\": \"Светодиодная лампа A60 12W E27\",\n      \"price\": 199.99,\n      \"quantity\": 3,\n      \"lineTotal\": 599.97\n    }\n  ],\n  \"comment\": \"Доставка после 18:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/orders/10/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "orders",
+                "10",
+                "status"
+              ]
+            },
+            "description": "Изменить статус заказа."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "PATCH"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Статус заказа успешно обновлен\",\n  \"status\": \"CONFIRMED\"\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "PATCH"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Некорректный статус заказа\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "adminToken",
+      "value": "your_admin_jwt_token"
+    }
+  ]
+}

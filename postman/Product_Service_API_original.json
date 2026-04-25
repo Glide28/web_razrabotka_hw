@@ -1,0 +1,315 @@
+{
+  "info": {
+    "name": "Product Service API",
+    "_postman_id": "c2a4d8b0-5f3a-4d10-9b7f-product-service",
+    "description": "Коллекция Postman для микросервиса товаров интернет-магазина завода лампочек.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User API",
+      "item": [
+        {
+          "name": "Get Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?page=1&size=10&search=&categoryId=&minPrice=&maxPrice=&baseType=&sortBy=price&sortDir=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "categoryId",
+                  "value": ""
+                },
+                {
+                  "key": "minPrice",
+                  "value": ""
+                },
+                {
+                  "key": "maxPrice",
+                  "value": ""
+                },
+                {
+                  "key": "baseType",
+                  "value": ""
+                },
+                {
+                  "key": "sortBy",
+                  "value": "price"
+                },
+                {
+                  "key": "sortDir",
+                  "value": "asc"
+                }
+              ]
+            },
+            "description": "Получить список товаров с поиском, фильтрацией и сортировкой."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"page\": 1,\n  \"size\": 10,\n  \"total\": 2,\n  \"items\": [\n    {\n      \"id\": 1,\n      \"name\": \"Светодиодная лампа A60 12W E27\",\n      \"sku\": \"LED-A60-12-E27\",\n      \"categoryId\": 1,\n      \"price\": 199.99,\n      \"stockQuantity\": 120,\n      \"isActive\": true\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Светодиодная лампа C37 8W E14\",\n      \"sku\": \"LED-C37-8-E14\",\n      \"categoryId\": 1,\n      \"price\": 149.99,\n      \"stockQuantity\": 85,\n      \"isActive\": true\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Получить карточку товара по идентификатору."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"name\": \"Светодиодная лампа A60 12W E27\",\n  \"sku\": \"LED-A60-12-E27\",\n  \"categoryId\": 1,\n  \"description\": \"Энергоэффективная лампа для бытового применения\",\n  \"baseType\": \"E27\",\n  \"powerWatts\": 12,\n  \"colorTemperature\": 4000,\n  \"voltage\": 220,\n  \"price\": 199.99,\n  \"stockQuantity\": 120,\n  \"imageUrl\": \"/images/a60-12w-e27.jpg\",\n  \"isActive\": true\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Товар не найден\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            },
+            "description": "Получить список категорий товаров."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Светодиодные лампы\",\n    \"description\": \"Современные энергоэффективные лампы\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Энергосберегающие лампы\",\n    \"description\": \"Лампы с пониженным энергопотреблением\"\n  }\n]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin API",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Светодиодная лампа GX53 10W\",\n  \"sku\": \"LED-GX53-10\",\n  \"categoryId\": 1,\n  \"description\": \"Лампа для потолочных светильников\",\n  \"baseType\": \"GX53\",\n  \"powerWatts\": 10,\n  \"colorTemperature\": 4000,\n  \"voltage\": 220,\n  \"price\": 179.99,\n  \"stockQuantity\": 60,\n  \"imageUrl\": \"/images/gx53-10w.jpg\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ]
+            },
+            "description": "Создать новый товар. Доступ только для администратора."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 3,\n  \"message\": \"Товар успешно создан\"\n}"
+            },
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Некорректные данные товара\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Светодиодная лампа A60 12W E27\",\n  \"sku\": \"LED-A60-12-E27\",\n  \"categoryId\": 1,\n  \"description\": \"Обновленное описание товара\",\n  \"baseType\": \"E27\",\n  \"powerWatts\": 12,\n  \"colorTemperature\": 4000,\n  \"voltage\": 220,\n  \"price\": 209.99,\n  \"stockQuantity\": 100,\n  \"imageUrl\": \"/images/a60-12w-e27.jpg\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Обновить существующий товар."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "PUT"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Товар успешно обновлен\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "PUT"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Товар не найден\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Product (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Логически скрыть товар из каталога."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "DELETE"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Товар деактивирован\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "adminToken",
+      "value": "your_admin_jwt_token"
+    }
+  ]
+}
