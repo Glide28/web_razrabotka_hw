@@ -1,9 +1,18 @@
+# Python
 .venv/
 __pycache__/
 *.pyc
 *.db
 .env
+
+# Videos
 wr_hw_02_ArseniyPaniklov*
 *.mp4
 *.mov
 *.avi
+
+# Node / React
+node_modules/
+dist/
+.env.local
+.vite/
