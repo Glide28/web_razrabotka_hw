@@ -1,57 +1,71 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import ProductCard from '../components/ProductCard.jsx'
+import { useDispatch, useSelector } from 'react-redux'
+import ProductCard from '../components/ProductCard'
+import { loadProducts } from '../features/products/productsSlice'
 
-function HomePage({ products, addToCart }) {
-  const popularProducts = products.filter((product) => product.isPopular).slice(0, 4)
+function HomePage() {
+  const dispatch = useDispatch()
+  const { items, loading, error } = useSelector((state) => state.products)
+
+  useEffect(() => {
+    dispatch(loadProducts({ size: 100, sortBy: 'id', sortDir: 'asc' }))
+  }, [dispatch])
+
+  const popularProducts = items.slice(0, 4)
 
   return (
     <>
-      <section className="hero-section">
-        <div className="container hero-grid">
-          <div className="hero-content">
+      <section className="hero">
+        <div className="container hero-content">
+          <div>
             <p className="eyebrow">Интернет-магазин завода лампочек</p>
             <h1>Лампочки для дома, офиса и производства</h1>
-            <p>
-              Подберите светодиодные, филаментные, промышленные и декоративные
-              лампы. Каталог содержит 20 товарных позиций для учебного проекта.
+            <p className="hero-text">
+              Светодиодные, промышленные, декоративные и бытовые лампы с удобным
+              выбором, корзиной и оформлением заказа.
             </p>
+
             <div className="hero-actions">
-              <Link to="/catalog" className="primary-link">
+              <Link to="/catalog" className="btn btn-primary">
                 Перейти в каталог
               </Link>
-              <Link to="/cart" className="secondary-link">
+              <Link to="/cart" className="btn btn-secondary">
                 Открыть корзину
               </Link>
             </div>
           </div>
 
           <div className="hero-card">
-            <span>💡</span>
-            <h2>Свет под любую задачу</h2>
-            <p>Поиск, фильтры, карточки товаров и оформление заказа.</p>
+            <span className="hero-icon">💡</span>
+            <h2>20+ товарных позиций</h2>
+            <p>Каталог загружается из backend-микросервиса товаров.</p>
           </div>
         </div>
       </section>
 
       <section className="section">
-        <div className="container section-header">
-          <div>
-            <p className="eyebrow">Популярные товары</p>
-            <h2>Рекомендуемые лампы</h2>
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <p className="eyebrow">Популярные товары</p>
+              <h2>Рекомендуем к покупке</h2>
+            </div>
+            <Link to="/catalog" className="text-link">
+              Смотреть весь каталог
+            </Link>
           </div>
-          <Link to="/catalog" className="text-link">
-            Смотреть весь каталог →
-          </Link>
-        </div>
 
-        <div className="container product-grid">
-          {popularProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              addToCart={addToCart}
-            />
-          ))}
+          {loading && <p className="info-message">Загрузка товаров...</p>}
+          {error && <p className="error-message">{error}</p>}
+
+          {!loading && !error && (
+            <div className="product-grid">
+              {popularProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>

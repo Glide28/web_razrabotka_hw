@@ -2,10 +2,10 @@ import { Outlet } from 'react-router-dom'
 import Header from './Header.jsx'
 import Footer from './Footer.jsx'
 
-function Layout({ cartCount }) {
+function Layout() {
   return (
     <div className="app">
-      <Header cartCount={cartCount} />
+      <Header />
       <main>
         <Outlet />
       </main>

@@ -1,15 +1,49 @@
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  clearSelectedProduct,
+  loadProductById,
+} from '../features/products/productsSlice'
+import { addItemToCart } from '../features/cart/cartSlice'
 
-function ProductPage({ products, addToCart }) {
+function ProductPage() {
   const { id } = useParams()
-  const product = products.find((item) => item.id === Number(id))
+  const dispatch = useDispatch()
 
-  if (!product) {
+  const { selectedProduct, selectedLoading, error } = useSelector(
+    (state) => state.products,
+  )
+  const actionLoading = useSelector((state) => state.cart.actionLoading)
+
+  useEffect(() => {
+    dispatch(loadProductById(id))
+
+    return () => {
+      dispatch(clearSelectedProduct())
+    }
+  }, [dispatch, id])
+
+  const handleAddToCart = () => {
+    dispatch(addItemToCart({ productId: selectedProduct.id, quantity: 1 }))
+  }
+
+  if (selectedLoading) {
     return (
       <section className="section">
-        <div className="container empty-state">
-          <h1>Товар не найден</h1>
-          <Link to="/catalog" className="primary-link">
+        <div className="container">
+          <p className="info-message">Загрузка товара...</p>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="section">
+        <div className="container">
+          <p className="error-message">{error}</p>
+          <Link to="/catalog" className="btn btn-secondary">
             Вернуться в каталог
           </Link>
         </div>
@@ -17,52 +51,75 @@ function ProductPage({ products, addToCart }) {
     )
   }
 
+  if (!selectedProduct) {
+    return null
+  }
+
   return (
     <section className="section">
-      <div className="container product-detail">
-        <div className="detail-image">
-          <span>{product.icon}</span>
-        </div>
+      <div className="container">
+        <Link to="/catalog" className="text-link">
+          ← Назад в каталог
+        </Link>
 
-        <div className="detail-info">
-          <p className="product-article">{product.article}</p>
-          <h1>{product.name}</h1>
-          <p>{product.description}</p>
-
-          <div className="price-large">
-            {product.price.toLocaleString('ru-RU')} ₽
+        <div className="product-details">
+          <div className="product-details-image">
+            <span>💡</span>
           </div>
 
-          <div className="specs">
-            <div>
-              <span>Категория</span>
-              <strong>{product.category}</strong>
-            </div>
-            <div>
-              <span>Цоколь</span>
-              <strong>{product.baseType}</strong>
-            </div>
-            <div>
-              <span>Мощность</span>
-              <strong>{product.power}</strong>
-            </div>
-            <div>
-              <span>Цветовая температура</span>
-              <strong>{product.temperature}</strong>
-            </div>
-            <div>
-              <span>Остаток на складе</span>
-              <strong>{product.stock} шт.</strong>
-            </div>
-          </div>
+          <div className="product-details-content">
+            <p className="product-article">Артикул: {selectedProduct.sku}</p>
+            <h1>{selectedProduct.name}</h1>
 
-          <div className="detail-actions">
-            <button type="button" onClick={() => addToCart(product.id)}>
-              Добавить в корзину
+            {selectedProduct.description && (
+              <p className="muted">{selectedProduct.description}</p>
+            )}
+
+            <p className="product-details-price">
+              {Number(selectedProduct.price).toLocaleString('ru-RU')} ₽
+            </p>
+
+            <div className="spec-list">
+              <div>
+                <span>Категория ID</span>
+                <strong>{selectedProduct.categoryId}</strong>
+              </div>
+              <div>
+                <span>Цоколь</span>
+                <strong>{selectedProduct.baseType || 'Не указан'}</strong>
+              </div>
+              <div>
+                <span>Мощность</span>
+                <strong>
+                  {selectedProduct.powerWatts
+                    ? `${selectedProduct.powerWatts} Вт`
+                    : 'Не указана'}
+                </strong>
+              </div>
+              <div>
+                <span>Цветовая температура</span>
+                <strong>
+                  {selectedProduct.colorTemperature
+                    ? `${selectedProduct.colorTemperature}K`
+                    : 'Не указана'}
+                </strong>
+              </div>
+              <div>
+                <span>Остаток</span>
+                <strong>{selectedProduct.stockQuantity} шт.</strong>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleAddToCart}
+              disabled={actionLoading || selectedProduct.stockQuantity <= 0}
+            >
+              {selectedProduct.stockQuantity > 0
+                ? 'Добавить в корзину'
+                : 'Нет в наличии'}
             </button>
-            <Link to="/catalog" className="secondary-link">
-              Назад в каталог
-            </Link>
           </div>
         </div>
       </div>

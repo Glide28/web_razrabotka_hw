@@ -1,15 +1,42 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  loadCart,
+  removeCartItem,
+  updateCartItemQuantity,
+} from '../features/cart/cartSlice'
 
-function CartPage({ cartItems, cartTotal, updateQuantity, removeFromCart }) {
-  if (cartItems.length === 0) {
+function CartPage() {
+  const dispatch = useDispatch()
+  const { items, totalAmount, loading, actionLoading, error } = useSelector(
+    (state) => state.cart,
+  )
+
+  useEffect(() => {
+    dispatch(loadCart())
+  }, [dispatch])
+
+  const handleQuantityChange = (cartItemId, quantity) => {
+    const safeQuantity = Math.max(1, Number(quantity) || 1)
+
+    dispatch(
+      updateCartItemQuantity({
+        cartItemId,
+        quantity: safeQuantity,
+      }),
+    )
+  }
+
+  const handleRemove = (cartItemId) => {
+    dispatch(removeCartItem(cartItemId))
+  }
+
+  if (loading) {
     return (
       <section className="section">
-        <div className="container empty-state">
-          <h1>Корзина пуста</h1>
-          <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
-          <Link to="/catalog" className="primary-link">
-            Перейти в каталог
-          </Link>
+        <div className="container">
+          <p className="info-message">Загрузка корзины...</p>
         </div>
       </section>
     )
@@ -17,67 +44,83 @@ function CartPage({ cartItems, cartTotal, updateQuantity, removeFromCart }) {
 
   return (
     <section className="section">
-      <div className="container page-title">
-        <p className="eyebrow">Корзина</p>
-        <h1>Выбранные товары</h1>
-      </div>
-
-      <div className="container cart-layout">
-        <div className="cart-list">
-          {cartItems.map((item) => (
-            <article key={item.productId} className="cart-item">
-              <div className="cart-item-image">{item.product.icon}</div>
-
-              <div className="cart-item-info">
-                <p className="product-article">{item.product.article}</p>
-                <h3>{item.product.name}</h3>
-                <p>{item.product.price.toLocaleString('ru-RU')} ₽ за шт.</p>
-              </div>
-
-              <div className="quantity-control">
-                <label>
-                  Количество
-                  <input
-                    type="number"
-                    min="1"
-                    max={item.product.stock}
-                    value={item.quantity}
-                    onChange={(event) =>
-                      updateQuantity(item.productId, event.target.value)
-                    }
-                  />
-                </label>
-              </div>
-
-              <strong>
-                {(item.product.price * item.quantity).toLocaleString('ru-RU')} ₽
-              </strong>
-
-              <button
-                type="button"
-                className="danger-button"
-                onClick={() => removeFromCart(item.productId)}
-              >
-                Удалить
-              </button>
-            </article>
-          ))}
+      <div className="container">
+        <div className="section-header">
+          <div>
+            <p className="eyebrow">Корзина</p>
+            <h1>Ваш заказ</h1>
+            <p className="muted">
+              Корзина загружается из backend-микросервиса заказов.
+            </p>
+          </div>
         </div>
 
-        <aside className="order-summary">
-          <h2>Итого</h2>
-          <div className="summary-row">
-            <span>Товаров</span>
-            <strong>{cartItems.length}</strong>
+        {error && <p className="error-message">{error}</p>}
+
+        {items.length === 0 ? (
+          <div className="empty-cart">
+            <h2>Корзина пуста</h2>
+            <p>Добавьте товары из каталога, чтобы оформить заказ.</p>
+            <Link to="/catalog" className="btn btn-primary">
+              Перейти в каталог
+            </Link>
           </div>
-          <div className="summary-row">
-            <span>Сумма заказа</span>
-            <strong>{cartTotal.toLocaleString('ru-RU')} ₽</strong>
+        ) : (
+          <div className="cart-layout">
+            <div className="cart-list">
+              {items.map((item) => (
+                <article key={item.id} className="cart-item">
+                  <div>
+                    <p className="product-article">ID товара: {item.product_id}</p>
+                    <h3>{item.product_name}</h3>
+                    <p className="muted">
+                      Цена: {Number(item.price).toLocaleString('ru-RU')} ₽
+                    </p>
+                  </div>
+
+                  <div className="cart-controls">
+                    <label>
+                      Количество
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        disabled={actionLoading}
+                        onChange={(event) =>
+                          handleQuantityChange(item.id, event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <strong>
+                      {Number(item.line_total).toLocaleString('ru-RU')} ₽
+                    </strong>
+
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      disabled={actionLoading}
+                      onClick={() => handleRemove(item.id)}
+                    >
+                      Удалить
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <aside className="cart-summary">
+              <h2>Итого</h2>
+              <p className="summary-total">
+                {Number(totalAmount).toLocaleString('ru-RU')} ₽
+              </p>
+
+              <Link to="/checkout" className="btn btn-primary full-width-summary">
+                Оформить заказ
+              </Link>
+            </aside>
           </div>
-          <Link to="/checkout" className="primary-link full-width">
-            Перейти к оформлению
-          </Link>
-        </aside>
+        )}
       </div>
     </section>
   )

@@ -1,118 +1,158 @@
-import { useMemo, useState } from 'react'
-import ProductCard from '../components/ProductCard.jsx'
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import ProductCard from '../components/ProductCard'
+import {
+  loadCategories,
+  loadProducts,
+} from '../features/products/productsSlice'
 
-function CatalogPage({ products, addToCart }) {
-  const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('Все')
-  const [baseType, setBaseType] = useState('Все')
-  const [maxPrice, setMaxPrice] = useState('2000')
-  const [sort, setSort] = useState('name-asc')
+function CatalogPage() {
+  const dispatch = useDispatch()
+  const { items, categories, total, loading, error } = useSelector(
+    (state) => state.products,
+  )
 
-  const categories = ['Все', ...new Set(products.map((product) => product.category))]
-  const baseTypes = ['Все', ...new Set(products.map((product) => product.baseType))]
+  const [filters, setFilters] = useState({
+    search: '',
+    categoryId: '',
+    baseType: '',
+    maxPrice: '',
+    sort: 'id-asc',
+  })
 
-  const filteredProducts = useMemo(() => {
-    const query = search.trim().toLowerCase()
+  useEffect(() => {
+    dispatch(loadCategories())
+  }, [dispatch])
 
-    return products
-      .filter((product) => {
-        const matchesSearch =
-          product.name.toLowerCase().includes(query) ||
-          product.article.toLowerCase().includes(query)
+  useEffect(() => {
+    const [sortBy, sortDir] = filters.sort.split('-')
 
-        const matchesCategory = category === 'Все' || product.category === category
-        const matchesBase = baseType === 'Все' || product.baseType === baseType
-        const matchesPrice = product.price <= Number(maxPrice)
+    dispatch(
+      loadProducts({
+        size: 100,
+        search: filters.search,
+        categoryId: filters.categoryId,
+        baseType: filters.baseType,
+        maxPrice: filters.maxPrice,
+        sortBy,
+        sortDir,
+      }),
+    )
+  }, [dispatch, filters])
 
-        return matchesSearch && matchesCategory && matchesBase && matchesPrice
-      })
-      .sort((a, b) => {
-        if (sort === 'price-asc') return a.price - b.price
-        if (sort === 'price-desc') return b.price - a.price
-        if (sort === 'name-desc') return b.name.localeCompare(a.name, 'ru')
-        return a.name.localeCompare(b.name, 'ru')
-      })
-  }, [products, search, category, baseType, maxPrice, sort])
+  const baseTypes = useMemo(() => {
+    const values = items
+      .map((product) => product.baseType)
+      .filter(Boolean)
+
+    return [...new Set(values)]
+  }, [items])
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+
+    setFilters((currentFilters) => ({
+      ...currentFilters,
+      [name]: value,
+    }))
+  }
 
   return (
     <section className="section">
-      <div className="container page-title">
-        <p className="eyebrow">Каталог</p>
-        <h1>Каталог лампочек</h1>
-        <p>
-          Используйте поиск, фильтрацию по категории, цоколю и цене, а также
-          сортировку по цене или названию.
-        </p>
-      </div>
+      <div className="container">
+        <div className="section-header">
+          <div>
+            <p className="eyebrow">Каталог</p>
+            <h1>Каталог лампочек</h1>
+            <p className="muted">
+              Товары загружаются из backend-микросервиса товаров через fetch.
+            </p>
+          </div>
+          <p className="result-count">Найдено товаров: {total}</p>
+        </div>
 
-      <div className="container catalog-layout">
-        <aside className="filters">
+        <div className="filters-panel">
           <label>
-            Поиск по названию или артикулу
+            Поиск
             <input
               type="text"
-              placeholder="Например: E27 или RGB"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              name="search"
+              value={filters.search}
+              onChange={handleChange}
+              placeholder="Название или артикул"
             />
           </label>
 
           <label>
             Категория
-            <select value={category} onChange={(event) => setCategory(event.target.value)}>
-              {categories.map((item) => (
-                <option key={item}>{item}</option>
+            <select
+              name="categoryId"
+              value={filters.categoryId}
+              onChange={handleChange}
+            >
+              <option value="">Все категории</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
               ))}
             </select>
           </label>
 
           <label>
             Тип цоколя
-            <select value={baseType} onChange={(event) => setBaseType(event.target.value)}>
-              {baseTypes.map((item) => (
-                <option key={item}>{item}</option>
+            <select
+              name="baseType"
+              value={filters.baseType}
+              onChange={handleChange}
+            >
+              <option value="">Все типы</option>
+              {baseTypes.map((baseType) => (
+                <option key={baseType} value={baseType}>
+                  {baseType}
+                </option>
               ))}
             </select>
           </label>
 
           <label>
-            Максимальная цена: {Number(maxPrice).toLocaleString('ru-RU')} ₽
+            Цена до, ₽
             <input
-              type="range"
-              min="50"
-              max="2000"
-              step="50"
-              value={maxPrice}
-              onChange={(event) => setMaxPrice(event.target.value)}
+              type="number"
+              name="maxPrice"
+              value={filters.maxPrice}
+              onChange={handleChange}
+              min="0"
+              placeholder="Например, 500"
             />
           </label>
 
           <label>
             Сортировка
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value="name-asc">По названию А–Я</option>
-              <option value="name-desc">По названию Я–А</option>
+            <select name="sort" value={filters.sort} onChange={handleChange}>
+              <option value="id-asc">По умолчанию</option>
               <option value="price-asc">Сначала дешевле</option>
               <option value="price-desc">Сначала дороже</option>
+              <option value="name-asc">По названию А-Я</option>
+              <option value="name-desc">По названию Я-А</option>
             </select>
           </label>
-        </aside>
+        </div>
 
-        <div>
-          <div className="catalog-summary">
-            Найдено товаров: <strong>{filteredProducts.length}</strong>
-          </div>
+        {loading && <p className="info-message">Загрузка каталога...</p>}
+        {error && <p className="error-message">{error}</p>}
 
+        {!loading && !error && items.length === 0 && (
+          <p className="empty-message">Товары не найдены.</p>
+        )}
+
+        {!loading && !error && items.length > 0 && (
           <div className="product-grid">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                addToCart={addToCart}
-              />
+            {items.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        </div>
+        )}
       </div>
     </section>
   )

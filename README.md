@@ -1,13 +1,15 @@
 # Интернет-магазин завода лампочек
 
 Учебный проект по дисциплине «Веб-разработка».
-Студент: Арсений Паниклов
+
+Студент: Арсений Паниклов  
 Группа: BHEMBD-25
 
 Проект реализуется поэтапно:
 
 - **Домашнее задание 2** — backend-часть: микросервисы товаров и заказов.
 - **Домашнее задание 3** — frontend-часть: пользовательский интерфейс интернет-магазина на React.
+- **Домашнее задание 4** — интеграция frontend с backend через `fetch` и управление состоянием через Redux.
 
 ---
 
@@ -18,31 +20,46 @@ web_razrabotka_hw/
 ├── product_service/   # микросервис товаров
 ├── order_service/     # микросервис корзины и заказов
 ├── postman/           # Postman-коллекции для проверки API
-├── frontend/          # React-приложение для пользовательской части магазина
+├── frontend/          # React-приложение пользовательской части магазина
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-# Домашнее задание 3 — frontend интернет-магазина на React
+# Домашнее задание 4 — React + Redux + взаимодействие с backend
 
 ## Описание
 
-В папке `frontend` реализована пользовательская часть интернет-магазина завода лампочек.
+В рамках ДЗ-4 frontend-приложение интернет-магазина доработано для полноценного взаимодействия с backend-микросервисами.
 
-Frontend выполнен на:
+Реализовано:
+
+- получение товаров из `product_service`;
+- получение категорий из `product_service`;
+- загрузка карточки товара из backend;
+- добавление товара в корзину через `order_service`;
+- получение корзины из `order_service`;
+- изменение количества товара в корзине;
+- удаление товара из корзины;
+- оформление заказа через `order_service`;
+- управление глобальным состоянием через Redux;
+- выполнение HTTP-запросов через `fetch`;
+- обработка загрузки и ошибок.
+
+Админская панель в рамках задания не реализуется.
+
+## Используемые технологии frontend
 
 - React;
 - Vite;
 - React Router DOM;
+- Redux Toolkit;
+- React Redux;
+- Fetch API;
 - CSS.
 
-Backend на данном этапе не подключается, так как по условиям ДЗ-3 разрешено использовать статические mock-данные.
-
-## Реализованные страницы
-
-В приложении реализованы основные пользовательские страницы интернет-магазина:
+## Основные frontend-страницы
 
 | Маршрут | Страница |
 |---|---|
@@ -53,64 +70,246 @@ Backend на данном этапе не подключается, так ка�
 | `/checkout` | Оформление заказа |
 | `/success` | Страница успешного оформления заказа |
 
-## Реализованная функциональность
+## Redux-структура
 
-- отображение каталога из 20 товаров;
-- отображение популярных товаров на главной странице;
-- просмотр карточки товара;
-- поиск товара по названию и артикулу;
-- фильтрация по категории;
-- фильтрация по типу цоколя;
-- фильтрация по цене;
-- сортировка по названию и цене;
-- добавление товара в корзину;
-- изменение количества товара в корзине;
-- удаление товара из корзины;
-- расчет итоговой суммы заказа;
-- оформление заказа через форму;
-- генерация номера заказа;
-- отображение страницы успешного оформления заказа;
-- адаптивная верстка.
-
-## Запуск frontend
-
-Перейдите в папку frontend:
-
-```bash
-cd frontend
+```text
+frontend/src/
+├── api/
+│   └── client.js
+├── app/
+│   └── store.js
+├── features/
+│   ├── products/
+│   │   └── productsSlice.js
+│   ├── cart/
+│   │   └── cartSlice.js
+│   └── orders/
+│       └── ordersSlice.js
 ```
 
-Установите зависимости:
+## Backend API, используемые frontend
 
-```bash
+### Product Service
+
+```text
+GET http://localhost:8001/api/products
+GET http://localhost:8001/api/products/{product_id}
+GET http://localhost:8001/api/categories
+```
+
+### Order Service
+
+```text
+GET    http://localhost:8002/api/cart?sessionId=sess_hw04
+POST   http://localhost:8002/api/cart/items
+PUT    http://localhost:8002/api/cart/items/{cart_item_id}
+DELETE http://localhost:8002/api/cart/items/{cart_item_id}
+POST   http://localhost:8002/api/orders
+```
+
+---
+
+# Инструкция запуска проекта ДЗ-4
+
+Для полной работы проекта нужно запустить три окна PowerShell.
+
+Порядок запуска важен:
+
+```text
+1. product_service
+2. order_service
+3. frontend
+```
+
+---
+
+## 1. Окно PowerShell №1 — Product Service
+
+```powershell
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_04\product_service
+.venv\Scripts\activate
+uvicorn app.main:app --reload --port 8001
+```
+
+Проверка:
+
+```text
+http://localhost:8001/api/products
+```
+
+Если сервис работает, в браузере появится JSON со списком товаров.
+
+---
+
+## 2. Окно PowerShell №2 — Order Service
+
+```powershell
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_04\order_service
+.venv\Scripts\activate
+uvicorn app.main:app --reload --port 8002
+```
+
+Проверка:
+
+```text
+http://localhost:8002/api/cart?sessionId=sess_hw04
+```
+
+Важно: `order_service` должен запускаться после `product_service`, потому что при добавлении товара в корзину он обращается к сервису товаров.
+
+---
+
+## 3. Окно PowerShell №3 — Frontend
+
+```powershell
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_04\frontend
 npm install
-```
-
-Запустите проект в режиме разработки:
-
-```bash
 npm run dev
 ```
 
-После запуска приложение будет доступно по адресу:
+После запуска frontend будет доступен по адресу:
 
 ```text
 http://localhost:5173/
 ```
 
-## Сборка frontend
+---
 
-Для проверки production-сборки выполните:
+# Проверка основного пользовательского сценария
 
-```bash
+## 1. Каталог
+
+Открыть:
+
+```text
+http://localhost:5173/catalog
+```
+
+Проверить:
+
+- товары загружаются из backend;
+- работает поиск;
+- работает фильтрация;
+- работает сортировка;
+- открывается карточка товара.
+
+В DevTools → Network должен быть запрос:
+
+```text
+GET http://localhost:8001/api/products
+```
+
+## 2. Карточка товара
+
+Открыть:
+
+```text
+http://localhost:5173/products/1
+```
+
+В DevTools → Network должен быть запрос:
+
+```text
+GET http://localhost:8001/api/products/1
+```
+
+## 3. Добавление в корзину
+
+Нажать кнопку:
+
+```text
+В корзину
+```
+
+В DevTools → Network должен быть запрос:
+
+```text
+POST http://localhost:8002/api/cart/items
+```
+
+## 4. Корзина
+
+Открыть:
+
+```text
+http://localhost:5173/cart
+```
+
+В DevTools → Network должен быть запрос:
+
+```text
+GET http://localhost:8002/api/cart?sessionId=sess_hw04
+```
+
+Проверить:
+
+- товар отображается в корзине;
+- можно изменить количество;
+- можно удалить товар;
+- итоговая сумма пересчитывается.
+
+При изменении количества должен быть запрос:
+
+```text
+PUT http://localhost:8002/api/cart/items/{cart_item_id}
+```
+
+При удалении товара должен быть запрос:
+
+```text
+DELETE http://localhost:8002/api/cart/items/{cart_item_id}
+```
+
+## 5. Оформление заказа
+
+Открыть:
+
+```text
+http://localhost:5173/checkout
+```
+
+Заполнить форму покупателя и нажать:
+
+```text
+Подтвердить заказ
+```
+
+В DevTools → Network должен быть запрос:
+
+```text
+POST http://localhost:8002/api/orders
+```
+
+После успешного оформления заказа приложение переходит на страницу:
+
+```text
+http://localhost:5173/success
+```
+
+На странице отображается номер заказа, статус и ID заказа.
+
+---
+
+# Проверка production-сборки frontend
+
+```powershell
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_04\frontend
 npm run build
 ```
 
-Для локального просмотра production-сборки:
+Если сборка успешна, в терминале появится сообщение:
 
-```bash
-npm run preview
+```text
+✓ built
 ```
+
+---
+
+# Домашнее задание 3 — frontend интернет-магазина на React
+
+В папке `frontend` реализована пользовательская часть интернет-магазина завода лампочек.
+
+В ДЗ-3 frontend работал на mock-данных без подключения backend. В ДЗ-4 эта логика была доработана: товары, корзина и заказы теперь связаны с backend-микросервисами.
 
 ---
 
@@ -167,83 +366,26 @@ http://localhost:8002/docs
 http://localhost:8002/api/cart?sessionId=sess_abc123
 ```
 
-## Проверка основного backend-сценария
-
-1. Получить товары:
-
-```http
-GET http://localhost:8001/api/products
-```
-
-2. Добавить товар в корзину:
-
-```http
-POST http://localhost:8002/api/cart/items
-Content-Type: application/json
-
-{
-  "sessionId": "sess_abc123",
-  "productId": 1,
-  "quantity": 2
-}
-```
-
-3. Проверить корзину:
-
-```http
-GET http://localhost:8002/api/cart?sessionId=sess_abc123
-```
-
-4. Оформить заказ:
-
-```http
-POST http://localhost:8002/api/orders
-Content-Type: application/json
-
-{
-  "sessionId": "sess_abc123",
-  "customer": {
-    "fullName": "Иванов Иван Иванович",
-    "phone": "+7 999 123-45-67",
-    "email": "ivanov@example.com",
-    "address": "г. Москва, ул. Пример, д. 1",
-    "comment": "Доставка после 18:00"
-  }
-}
-```
-
-5. Посмотреть список заказов:
-
-```http
-GET http://localhost:8002/api/admin/orders
-```
-
-6. Изменить статус заказа:
-
-```http
-PATCH http://localhost:8002/api/admin/orders/1/status
-Content-Type: application/json
-
-{
-  "status": "CONFIRMED"
-}
-```
-
 ---
 
-## Состав сдачи
+# Состав сдачи ДЗ-4
 
-Для ДЗ-3 в форме сдачи указывается ссылка на данный GitHub-репозиторий.
+Для сдачи ДЗ-4 необходимо предоставить:
 
-Пользовательская frontend-часть находится в папке:
+1. ссылку на GitHub-репозиторий;
+2. ссылку на видеодемонстрацию работы frontend;
+3. в видео показать DevTools → Network с основными HTTP-запросами.
 
-```text
-frontend/
-```
+В видео нужно показать:
 
-Backend-часть из ДЗ-2 находится в папках:
-
-```text
-product_service/
-order_service/
-```
+- запуск `product_service`;
+- запуск `order_service`;
+- запуск `frontend`;
+- загрузку товаров из backend;
+- открытие карточки товара;
+- добавление товара в корзину;
+- изменение количества товара;
+- удаление товара из корзины;
+- оформление заказа;
+- переход на страницу успешного заказа;
+- сетевые запросы `GET`, `POST`, `PUT`, `DELETE` во вкладке Network.

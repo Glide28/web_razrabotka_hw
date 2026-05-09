@@ -1,32 +1,43 @@
 import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { addItemToCart } from '../features/cart/cartSlice'
 
-function ProductCard({ product, addToCart }) {
+function ProductCard({ product }) {
+  const dispatch = useDispatch()
+  const actionLoading = useSelector((state) => state.cart.actionLoading)
+
+  const handleAddToCart = () => {
+    dispatch(addItemToCart({ productId: product.id, quantity: 1 }))
+  }
+
   return (
     <article className="product-card">
-      <Link to={`/products/${product.id}`} className="product-image">
-        <span>{product.icon}</span>
+      <Link to={`/products/${product.id}`} className="product-link">
+        <div className="product-image">
+          <span>💡</span>
+        </div>
+
+        <div className="product-body">
+          <p className="product-article">Артикул: {product.sku}</p>
+          <h3>{product.name}</h3>
+
+          <div className="product-meta">
+            {product.baseType && <span>Цоколь: {product.baseType}</span>}
+            <span>Остаток: {product.stockQuantity} шт.</span>
+          </div>
+
+          <p className="product-price">{Number(product.price).toLocaleString('ru-RU')} ₽</p>
+        </div>
       </Link>
 
-      <div className="product-body">
-        <p className="product-article">{product.article}</p>
-        <h3>
-          <Link to={`/products/${product.id}`}>{product.name}</Link>
-        </h3>
-        <p className="product-description">{product.description}</p>
-
-        <div className="product-meta">
-          <span>{product.category}</span>
-          <span>{product.baseType}</span>
-          <span>{product.power}</span>
-        </div>
-
-        <div className="product-bottom">
-          <strong>{product.price.toLocaleString('ru-RU')} ₽</strong>
-          <button type="button" onClick={() => addToCart(product.id)}>
-            В корзину
-          </button>
-        </div>
-      </div>
+      <button
+        type="button"
+        className="btn btn-primary full-width"
+        onClick={handleAddToCart}
+        disabled={actionLoading || product.stockQuantity <= 0}
+      >
+        {product.stockQuantity > 0 ? 'В корзину' : 'Нет в наличии'}
+      </button>
     </article>
   )
 }
