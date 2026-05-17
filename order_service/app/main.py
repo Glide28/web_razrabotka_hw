@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import Base, engine
-from .routers import admin_orders, cart, orders
+from .routers import admin_orders, auth, cart, orders
 
 app = FastAPI(title="Order Service API", version="1.0.0")
 app.add_middleware(
@@ -23,3 +23,4 @@ def health():
 app.include_router(cart.router)
 app.include_router(orders.router)
 app.include_router(admin_orders.router)
+app.include_router(auth.router)
