@@ -1,16 +1,19 @@
 # Интернет-магазин завода лампочек
 
-Учебный проект по дисциплине «Веб-разработка».
+Учебный итоговый проект по дисциплине «Веб-разработка».
 
 Студент: Арсений Паниклов  
 Группа: BHEMBD-25
 
-Проект реализуется поэтапно:
+## Итоговое задание
 
-- **Домашнее задание 2** — backend-часть: микросервисы товаров и заказов.
-- **Домашнее задание 3** — frontend-часть: пользовательский интерфейс интернет-магазина на React.
-- **Домашнее задание 4** — интеграция frontend с backend через `fetch` и управление состоянием через Redux.
-- **Домашнее задание 5** — панель управления администратора с JWT-аутентификацией и авторизацией admin API.
+Финальная версия проекта интернет-магазина включает:
+
+- пользовательскую часть магазина;
+- микросервис управления товарами;
+- микросервис управления заказами;
+- отдельную панель управления менеджера;
+- JWT-аутентификацию и авторизацию для административных действий.
 
 ---
 
@@ -18,36 +21,47 @@
 
 ```text
 web_razrabotka_hw/
-├── product_service/   # микросервис товаров
-├── order_service/     # микросервис корзины, заказов и auth/login
+├── product_service/   # микросервис управления товарами
+├── order_service/     # микросервис корзины, заказов и авторизации
+├── frontend/          # пользовательский frontend интернет-магазина
+├── admin_panel/       # отдельная панель управления менеджера
 ├── postman/           # Postman-коллекции для проверки API
-├── frontend/          # React-приложение магазина и админ-панели
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-# Домашнее задание 5 — панель управления в микросервисной архитектуре
+## Реализованный функционал
 
-## Описание
+### Пользователь интернет-магазина
 
-В рамках ДЗ-5 реализована административная панель интернет-магазина.
+Пользователь может:
 
-Добавлены:
+- просматривать каталог товаров;
+- открывать карточку товара;
+- искать и фильтровать товары;
+- добавлять товары в корзину;
+- изменять количество товаров в корзине;
+- удалять товары из корзины;
+- оформлять заказ;
+- видеть страницу успешного оформления заказа.
 
-- вход администратора по логину и паролю;
-- получение JWT-токена после успешного входа;
-- сохранение JWT-токена во frontend;
-- отправка JWT в заголовке `Authorization: Bearer <token>`;
-- защита admin endpoint'ов в `product_service`;
-- защита admin endpoint'ов в `order_service`;
-- управление товарами в админ-панели;
-- просмотр заказов;
-- изменение статусов заказов;
-- выход из личного кабинета администратора.
+### Менеджер / администратор
 
-Админ-панель реализована внутри существующего React frontend.
+Менеджер может:
+
+- войти в панель управления по логину и паролю;
+- получить JWT-токен после входа;
+- просматривать список товаров;
+- добавлять новые товары;
+- редактировать существующие товары;
+- удалять / деактивировать товары;
+- просматривать список заказов;
+- менять статусы заказов;
+- выйти из панели управления.
+
+---
 
 ## Данные администратора
 
@@ -56,7 +70,19 @@ web_razrabotka_hw/
 Пароль: admin123
 ```
 
-## Используемые технологии
+---
+
+## Технологии
+
+### Backend
+
+- Python;
+- FastAPI;
+- SQLAlchemy;
+- Pydantic;
+- Uvicorn;
+- python-jose;
+- JWT.
 
 ### Frontend
 
@@ -66,76 +92,26 @@ web_razrabotka_hw/
 - Redux Toolkit;
 - React Redux;
 - Fetch API;
-- CSS;
-- LocalStorage для хранения JWT.
-
-### Backend
-
-- FastAPI;
-- SQLAlchemy;
-- Pydantic;
-- python-jose;
-- JWT;
-- Uvicorn.
-
-## Основные страницы frontend
-
-### Пользовательская часть
-
-| Маршрут | Страница |
-|---|---|
-| `/` | Главная страница |
-| `/catalog` | Каталог товаров |
-| `/products/:id` | Карточка товара |
-| `/cart` | Корзина |
-| `/checkout` | Оформление заказа |
-| `/success` | Страница успешного оформления заказа |
-
-### Административная часть
-
-| Маршрут | Страница |
-|---|---|
-| `/admin/login` | Вход администратора |
-| `/admin/products` | Управление товарами |
-| `/admin/orders` | Управление заказами |
-
-## JWT-аутентификация
-
-Логин администратора выполняется через `order_service`:
-
-```text
-POST http://127.0.0.1:8002/api/auth/login
-```
-
-Тело запроса:
-
-```json
-{
-  "username": "admin",
-  "password": "admin123"
-}
-```
-
-Пример ответа:
-
-```json
-{
-  "accessToken": "jwt-token",
-  "tokenType": "bearer"
-}
-```
-
-После входа frontend сохраняет токен в `localStorage` и использует его для admin API:
-
-```http
-Authorization: Bearer <token>
-```
+- CSS.
 
 ---
 
-# Backend API
+## Микросервисная архитектура
 
-## Публичные endpoints Product Service
+| Компонент | Назначение | Порт |
+|---|---|---|
+| `product_service` | управление товарами и категориями | `8001` |
+| `order_service` | корзина, заказы, авторизация | `8002` |
+| `frontend` | пользовательская часть магазина | `5173` |
+| `admin_panel` | панель управления менеджера | `5174` |
+
+---
+
+## Backend API
+
+### Product Service
+
+Публичные endpoints:
 
 ```text
 GET http://127.0.0.1:8001/api/products
@@ -143,9 +119,7 @@ GET http://127.0.0.1:8001/api/products/{product_id}
 GET http://127.0.0.1:8001/api/categories
 ```
 
-## Защищённые admin endpoints Product Service
-
-Требуют JWT:
+Защищённые admin endpoints:
 
 ```text
 GET    http://127.0.0.1:8001/api/admin/products
@@ -154,15 +128,9 @@ PUT    http://127.0.0.1:8001/api/admin/products/{product_id}
 DELETE http://127.0.0.1:8001/api/admin/products/{product_id}
 ```
 
-Без токена endpoint должен возвращать:
+### Order Service
 
-```json
-{
-  "detail": "Not authenticated"
-}
-```
-
-## Публичные endpoints Order Service
+Публичные endpoints:
 
 ```text
 GET    http://127.0.0.1:8002/api/cart?sessionId=sess_hw05
@@ -172,15 +140,13 @@ DELETE http://127.0.0.1:8002/api/cart/items/{cart_item_id}
 POST   http://127.0.0.1:8002/api/orders
 ```
 
-## Auth endpoint Order Service
+Auth endpoint:
 
 ```text
 POST http://127.0.0.1:8002/api/auth/login
 ```
 
-## Защищённые admin endpoints Order Service
-
-Требуют JWT:
+Защищённые admin endpoints:
 
 ```text
 GET   http://127.0.0.1:8002/api/admin/orders
@@ -190,70 +156,39 @@ PATCH http://127.0.0.1:8002/api/admin/orders/{order_id}/status
 
 ---
 
-# Инструкция запуска проекта ДЗ-5
+## Запуск проекта
 
-Для полной работы проекта нужно запустить три окна PowerShell.
+Для полной проверки проекта нужно открыть четыре отдельных окна PowerShell.
 
-Порядок запуска важен:
+Порядок запуска:
 
 ```text
 1. product_service
 2. order_service
 3. frontend
+4. admin_panel
 ```
 
----
-
-## 1. Окно PowerShell №1 — Product Service
+### 1. Окно PowerShell №1 — Product Service
 
 ```powershell
-cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_05\product_service
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_06_fin\product_service
 .venv\Scripts\activate
 python -m uvicorn app.main:app --reload --port 8001
 ```
 
-После запуска должно быть:
-
-```text
-Uvicorn running on http://127.0.0.1:8001
-Application startup complete.
-```
-
-Проверка публичного API:
+Проверка:
 
 ```text
 http://127.0.0.1:8001/api/products
 ```
 
-Проверка защищённого admin API без токена:
-
-```text
-http://127.0.0.1:8001/api/admin/products
-```
-
-Ожидаемый результат:
-
-```json
-{
-  "detail": "Not authenticated"
-}
-```
-
----
-
-## 2. Окно PowerShell №2 — Order Service
+### 2. Окно PowerShell №2 — Order Service
 
 ```powershell
-cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_05\order_service
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_06_fin\order_service
 .venv\Scripts\activate
 python -m uvicorn app.main:app --reload --port 8002
-```
-
-После запуска должно быть:
-
-```text
-Uvicorn running on http://127.0.0.1:8002
-Application startup complete.
 ```
 
 Проверка корзины:
@@ -262,7 +197,7 @@ Application startup complete.
 http://127.0.0.1:8002/api/cart?sessionId=sess_hw05
 ```
 
-Проверка JWT-логина через PowerShell:
+Проверка авторизации:
 
 ```powershell
 Invoke-RestMethod `
@@ -272,56 +207,42 @@ Invoke-RestMethod `
   -Body '{"username":"admin","password":"admin123"}'
 ```
 
-Ожидаемый результат:
-
-```text
-accessToken
------------
-eyJhbGciOiJIUzI1NiIs...
-```
-
----
-
-## 3. Окно PowerShell №3 — Frontend
+### 3. Окно PowerShell №3 — пользовательский frontend
 
 ```powershell
-cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_05\frontend
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_06_fin\frontend
 npm install
 npm run dev
 ```
 
-После запуска открыть:
+Открыть:
 
 ```text
 http://localhost:5173/
+```
+
+### 4. Окно PowerShell №4 — панель управления
+
+```powershell
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_06_fin\admin_panel
+npm install
+npm run dev
+```
+
+Открыть:
+
+```text
+http://localhost:5174/
 ```
 
 ---
 
-# Проверка пользовательской части магазина
-
-Проверить страницы:
-
-```text
-http://localhost:5173/
-http://localhost:5173/catalog
-http://localhost:5173/products/1
-http://localhost:5173/cart
-http://localhost:5173/checkout
-```
-
-## Основной сценарий
+## Проверка пользовательского сценария
 
 1. Открыть каталог:
 
 ```text
 http://localhost:5173/catalog
-```
-
-В DevTools → Network должен быть запрос:
-
-```text
-GET http://127.0.0.1:8001/api/products
 ```
 
 2. Открыть карточку товара:
@@ -330,19 +251,7 @@ GET http://127.0.0.1:8001/api/products
 http://localhost:5173/products/1
 ```
 
-В DevTools → Network должен быть запрос:
-
-```text
-GET http://127.0.0.1:8001/api/products/1
-```
-
 3. Добавить товар в корзину.
-
-В DevTools → Network должен быть запрос:
-
-```text
-POST http://127.0.0.1:8002/api/cart/items
-```
 
 4. Открыть корзину:
 
@@ -350,37 +259,19 @@ POST http://127.0.0.1:8002/api/cart/items
 http://localhost:5173/cart
 ```
 
-В DevTools → Network должен быть запрос:
-
-```text
-GET http://127.0.0.1:8002/api/cart?sessionId=sess_hw05
-```
-
 5. Изменить количество товара.
-
-В DevTools → Network должен быть запрос:
-
-```text
-PUT http://127.0.0.1:8002/api/cart/items/{cart_item_id}
-```
 
 6. Удалить товар.
 
-В DevTools → Network должен быть запрос:
+7. Перейти к оформлению заказа:
 
 ```text
-DELETE http://127.0.0.1:8002/api/cart/items/{cart_item_id}
+http://localhost:5173/checkout
 ```
 
-7. Оформить заказ.
+8. Заполнить форму и подтвердить заказ.
 
-В DevTools → Network должен быть запрос:
-
-```text
-POST http://127.0.0.1:8002/api/orders
-```
-
-После успешного оформления заказа приложение переходит на:
+9. После успешного оформления откроется:
 
 ```text
 http://localhost:5173/success
@@ -388,12 +279,12 @@ http://localhost:5173/success
 
 ---
 
-# Проверка админ-панели
+## Проверка панели управления
 
-Открыть страницу входа:
+Открыть:
 
 ```text
-http://localhost:5173/admin/login
+http://localhost:5174/
 ```
 
 Войти:
@@ -403,100 +294,47 @@ http://localhost:5173/admin/login
 Пароль: admin123
 ```
 
-После успешного входа должен быть переход на:
+После входа открывается управление товарами:
 
 ```text
-http://localhost:5173/admin/products
+http://localhost:5174/products
 ```
 
-## Проверка входа администратора
-
-В DevTools → Network должен быть запрос:
+Также доступна страница заказов:
 
 ```text
-POST http://127.0.0.1:8002/api/auth/login
-```
-
-В ответе должен прийти JWT-токен.
-
-## Проверка управления товарами
-
-Открыть:
-
-```text
-http://localhost:5173/admin/products
-```
-
-В DevTools → Network должен быть запрос:
-
-```text
-GET http://127.0.0.1:8001/api/admin/products
-```
-
-В Headers должен быть заголовок:
-
-```http
-Authorization: Bearer <token>
+http://localhost:5174/orders
 ```
 
 Проверить:
 
-- список товаров загружается;
-- товар можно добавить;
-- товар можно отредактировать;
-- товар можно удалить/деактивировать.
-
-В Network должны быть запросы:
-
-```text
-GET    /api/admin/products
-POST   /api/admin/products
-PUT    /api/admin/products/{id}
-DELETE /api/admin/products/{id}
-```
-
-## Проверка управления заказами
-
-Открыть:
-
-```text
-http://localhost:5173/admin/orders
-```
-
-В DevTools → Network должен быть запрос:
-
-```text
-GET http://127.0.0.1:8002/api/admin/orders
-```
-
-В Headers должен быть заголовок:
-
-```http
-Authorization: Bearer <token>
-```
-
-Проверить:
-
-- список заказов загружается;
-- отображаются номер заказа, покупатель, статус, сумма и дата;
-- статус заказа можно изменить.
-
-При изменении статуса должен быть запрос:
-
-```text
-PATCH http://127.0.0.1:8002/api/admin/orders/{order_id}/status
-```
+- загрузку списка товаров;
+- добавление товара;
+- редактирование товара;
+- удаление / деактивацию товара;
+- загрузку списка заказов;
+- изменение статуса заказа;
+- выход из панели управления.
 
 ---
 
-# Проверка production-сборки frontend
+## Проверка сборки
+
+### Пользовательский frontend
 
 ```powershell
-cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_05\frontend
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_06_fin\frontend
 npm run build
 ```
 
-Если сборка успешна, в терминале появится сообщение:
+### Панель управления
+
+```powershell
+cd D:\IT\_myProjects\8_Ars_MFTI\web_razrabotka_hw_06_fin\admin_panel
+npm run build
+```
+
+В обоих случаях должна появиться строка:
 
 ```text
 ✓ built
@@ -504,131 +342,67 @@ npm run build
 
 ---
 
-# Что показать на видео для сдачи ДЗ-5
+## Что показать на видео
 
-В видео нужно показать:
+В демонстрации нужно показать:
 
-1. Запущены три окна PowerShell:
-   - `product_service` на 8001;
-   - `order_service` на 8002;
-   - `frontend` на 5173.
+1. Запуск четырёх компонентов:
+   - `product_service`;
+   - `order_service`;
+   - `frontend`;
+   - `admin_panel`.
 
-2. Открыта пользовательская часть:
-   - главная;
+2. Пользовательский сценарий:
    - каталог;
    - карточка товара;
-   - корзина;
-   - оформление заказа.
+   - добавление в корзину;
+   - изменение корзины;
+   - оформление заказа;
+   - страница успешного заказа.
 
-3. Открыта админ-панель:
+3. Административный сценарий:
+   - вход менеджера;
+   - запрос `POST /api/auth/login`;
+   - управление товарами;
+   - управление заказами;
+   - изменение статуса заказа;
+   - выход из панели управления.
 
-```text
-http://localhost:5173/admin/login
-```
-
-4. Выполнен вход администратора:
-
-```text
-admin / admin123
-```
-
-5. В DevTools → Network показан запрос:
-
-```text
-POST /api/auth/login
-```
-
-6. Показано управление товарами:
-   - просмотр списка товаров;
-   - добавление товара;
-   - редактирование товара;
-   - удаление/деактивация товара.
-
-7. Показано управление заказами:
-   - просмотр списка заказов;
-   - изменение статуса заказа.
-
-8. В DevTools → Network показаны admin-запросы с JWT:
-
-```text
-GET    /api/admin/products
-POST   /api/admin/products
-PUT    /api/admin/products/{id}
-DELETE /api/admin/products/{id}
-GET    /api/admin/orders
-PATCH  /api/admin/orders/{id}/status
-```
+4. Во вкладке DevTools → Network должны быть видны основные HTTP-запросы:
+   - `GET /api/products`;
+   - `POST /api/cart/items`;
+   - `POST /api/orders`;
+   - `POST /api/auth/login`;
+   - `GET /api/admin/products`;
+   - `POST /api/admin/products`;
+   - `PUT /api/admin/products/{id}`;
+   - `DELETE /api/admin/products/{id}`;
+   - `GET /api/admin/orders`;
+   - `PATCH /api/admin/orders/{id}/status`.
 
 ---
 
-# Если появляется Failed to fetch
+## Возможные проблемы
 
-Проверить по порядку:
+### Failed to fetch
 
-1. Запущен ли `product_service` на 8001.
-2. Запущен ли `order_service` на 8002.
-3. Запущен ли `frontend` на 5173.
-4. Открывается ли:
+Проверить:
+
+- запущен ли `product_service` на порту `8001`;
+- запущен ли `order_service` на порту `8002`;
+- запущен ли пользовательский frontend на `5173`;
+- запущена ли панель управления на `5174`;
+- открывается ли `http://127.0.0.1:8001/api/products`;
+- открывается ли `http://127.0.0.1:8002/api/cart?sessionId=sess_hw05`;
+- установлен ли пакет `python-jose` в `.venv` обоих backend-сервисов;
+- передаётся ли заголовок `Authorization: Bearer <token>` в admin-запросах.
+
+---
+
+## GitHub
+
+Репозиторий проекта:
 
 ```text
-http://127.0.0.1:8001/api/products
+https://github.com/Glide28/web_razrabotka_hw
 ```
-
-5. Открывается ли:
-
-```text
-http://127.0.0.1:8002/api/cart?sessionId=sess_hw05
-```
-
-6. Работает ли логин:
-
-```powershell
-Invoke-RestMethod `
-  -Method Post `
-  -Uri "http://127.0.0.1:8002/api/auth/login" `
-  -ContentType "application/json" `
-  -Body '{"username":"admin","password":"admin123"}'
-```
-
-7. Нет ли ошибок в DevTools → Console.
-8. Нет ли красных запросов в DevTools → Network.
-
-Частые причины:
-
-- не запущен `product_service`;
-- не запущен `order_service`;
-- в `.venv` не установлена зависимость `python-jose`;
-- frontend обращается к `localhost`, а backend проверяется через `127.0.0.1`;
-- неправильный порт;
-- не сохранён JWT-токен;
-- не передаётся заголовок `Authorization: Bearer <token>`.
-
----
-
-# Домашнее задание 4 — React + Redux + взаимодействие с backend
-
-В рамках ДЗ-4 frontend-приложение было доработано для взаимодействия с backend-микросервисами через `fetch` и Redux Toolkit.
-
-Реализовано:
-
-- загрузка товаров из `product_service`;
-- работа корзины через `order_service`;
-- оформление заказа через `order_service`;
-- глобальное состояние товаров, корзины и заказов через Redux.
-
----
-
-# Домашнее задание 3 — frontend интернет-магазина на React
-
-В рамках ДЗ-3 была реализована пользовательская часть интернет-магазина на React.
-
-На этом этапе frontend работал на mock-данных без подключения backend.
-
----
-
-# Домашнее задание 2 — микросервисы товаров и заказов
-
-Проект содержит две backend-реализации:
-
-1. `product_service` — микросервис товаров.
-2. `order_service` — микросервис корзины и заказов.

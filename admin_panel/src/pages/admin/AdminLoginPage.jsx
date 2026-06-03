@@ -30,7 +30,7 @@ function AdminLoginPage() {
     try {
       const data = await loginAdminApi(form.username, form.password)
       saveAdminToken(data.accessToken)
-      navigate('/admin/products')
+      navigate('/products')
     } catch (requestError) {
       setError(requestError.message)
     } finally {

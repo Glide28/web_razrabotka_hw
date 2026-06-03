@@ -53,7 +53,7 @@ function AdminProductsPage() {
 
   const handleLogout = () => {
     removeAdminToken()
-    navigate('/admin/login')
+    navigate('/')
   }
 
   const handleChange = (event) => {
@@ -157,16 +157,18 @@ function AdminProductsPage() {
           </div>
 
           <div className="admin-actions">
-            <Link to="/admin/orders" className="btn btn-secondary">
-              Заказы
+            <Link to="/orders" className="btn btn-secondary">
+                Заказы
             </Link>
-            <Link to="/" className="btn btn-secondary">
-              Магазин
-            </Link>
+
+            <a href="http://localhost:5173/" className="btn btn-secondary">
+                Магазин
+            </a>
+
             <button type="button" className="btn btn-secondary" onClick={handleLogout}>
-              Выйти
+                Выйти
             </button>
-          </div>
+            </div>
         </div>
 
         <div className="admin-grid">

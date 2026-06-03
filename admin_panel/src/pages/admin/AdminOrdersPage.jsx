@@ -45,7 +45,7 @@ function AdminOrdersPage() {
 
   const handleLogout = () => {
     removeAdminToken()
-    navigate('/admin/login')
+    navigate('/')
   }
 
   const handleStatusChange = async (orderId, status) => {
@@ -73,12 +73,12 @@ function AdminOrdersPage() {
           </div>
 
           <div className="admin-actions">
-            <Link to="/admin/products" className="btn btn-secondary">
+            <Link to="/products" className="btn btn-secondary">
               Товары
             </Link>
-            <Link to="/" className="btn btn-secondary">
-              Магазин
-            </Link>
+            <a href="http://localhost:5173/" className="btn btn-secondary">
+                Магазин
+                </a>
             <button type="button" className="btn btn-secondary" onClick={handleLogout}>
               Выйти
             </button>
